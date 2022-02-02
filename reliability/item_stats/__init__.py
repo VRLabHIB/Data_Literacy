@@ -43,19 +43,22 @@ def item_stats(df=None,level=None,drop=None):
         std_lst = list()
         itc_lst = list()
 
-        for column in df:
-            mean = df[column].mean()
-            std = df[column].std()
-            sub_df = df.drop([column], axis=1)
-            pr = pearsonr(sub_df.mean(axis=1), df[column])
+        if len(df)>1:
+            for column in df:
+                mean = df[column].mean()
+                std = df[column].std()
+                sub_df = df.drop([column], axis=1)
+                pr = pearsonr(sub_df.mean(axis=1), df[column])
 
-            item_lst.append(column)
-            mean_lst.append(mean)
-            std_lst.append(std)
-            itc_lst.append(pr[0])
+                item_lst.append(column)
+                mean_lst.append(mean)
+                std_lst.append(std)
+                itc_lst.append(pr[0])
 
-        stats = pd.DataFrame({"Mean":mean_lst, "Std":std_lst,"Item-Total Correlation":itc_lst})
-        stats.index = item_lst
-        stats = stats.round(3)
+            stats = pd.DataFrame({"Mean":mean_lst, "Std":std_lst,"Item-Total Correlation":itc_lst})
+            stats.index = item_lst
+            stats = stats.round(3)
+        else:
+            stats = None
 
     return [df_alpha, stats]
