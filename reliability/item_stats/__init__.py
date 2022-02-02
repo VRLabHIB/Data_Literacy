@@ -11,12 +11,17 @@ def item_stats(df=None,level=None,drop=None):
     ------------------
     df::py:class:'pandas.DataFrame'
         Wide format i.e. df.loc[case, variable]
-    level: {"nominal", "ordinal", "metric", "scale"}
+    level: {"nominal", "ordinal", "scale", "scales"}
         Specifies the scale level of the item values.
-    scale: 
-        Computes item-total correlation and cronbachs alpha
-    drop: array (1 dim)
-        Name variables that need to be removed from the dataframe before the analysis 
+
+        nominal:
+            States frequency of item values.
+        scale:
+            Questions with only one item. 
+        scales: 
+            More than one item. Computes item-total correlation and cronbachs alpha
+        drop: array (1 dim)
+            Name variables that need to be removed from the dataframe before the analysis 
 
     Returns
     ------------------
@@ -30,7 +35,17 @@ def item_stats(df=None,level=None,drop=None):
     if drop!=None:
         df = df.drop(drop, axis=1)
 
-    if level == "scale":
+    if level == 'scale':
+        #scale with one item
+        n = len(df)
+        mean = df.sum(axis=1).mean()
+        std = df.sum(axis=1).std()
+        deskriptives = pd.DataFrame({'N':n,'Mean':round(mean,3),'Std':round(std,3)})
+        frequencies = pd.DataFrame(df.value_counts())
+        return[deskriptives,frequencies]
+
+    if level == "scales":
+        #more than 1 item is necessary
         n = len(df)
         mean = df.sum(axis=1).mean()
         std = df.sum(axis=1).std()
@@ -43,22 +58,19 @@ def item_stats(df=None,level=None,drop=None):
         std_lst = list()
         itc_lst = list()
 
-        if len(df)>1:
-            for column in df:
-                mean = df[column].mean()
-                std = df[column].std()
-                sub_df = df.drop([column], axis=1)
-                pr = pearsonr(sub_df.mean(axis=1), df[column])
+        for column in df:
+            mean = df[column].mean()
+            std = df[column].std()
+            sub_df = df.drop([column], axis=1)
+            pr = pearsonr(sub_df.mean(axis=1), df[column])
 
-                item_lst.append(column)
-                mean_lst.append(mean)
-                std_lst.append(std)
-                itc_lst.append(pr[0])
+            item_lst.append(column)
+            mean_lst.append(mean)
+            std_lst.append(std)
+            itc_lst.append(pr[0])
 
-            stats = pd.DataFrame({"Mean":mean_lst, "Std":std_lst,"Item-Total Correlation":itc_lst})
-            stats.index = item_lst
-            stats = stats.round(3)
-        else:
-            stats = None
+        stats = pd.DataFrame({"Mean":mean_lst, "Std":std_lst,"Item-Total Correlation":itc_lst})
+        stats.index = item_lst
+        stats = stats.round(3)
 
     return [df_alpha, stats]
