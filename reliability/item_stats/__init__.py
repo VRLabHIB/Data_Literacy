@@ -1,9 +1,9 @@
 import pandas as pd
 import pingouin as pg
 from scipy.stats import pearsonr
+import numpy as np
 
-
-def item_stats(df=None,level=None,drop=None):
+def item_stats(df=None,level=None,drop=None,missings=None):
     """
     Calculate and display different statistical values to state item and scale reliability for questionnaire items.
 
@@ -15,7 +15,9 @@ def item_stats(df=None,level=None,drop=None):
         Specifies the scale level of the item values.
 
         nominal:
-            States frequency of item values.
+            States frequency of values for one item.
+        ordinal:
+            TODO
         scale:
             Questions with only one item. 
         scales: 
@@ -34,14 +36,24 @@ def item_stats(df=None,level=None,drop=None):
     """
     if drop!=None:
         df = df.drop(drop, axis=1)
+    if missings!=None:
+        for m in missings:
+            df = df.replace(m,np.nan)
+    
+    if level == 'nominal':
+        #single nominal variable
+        n = len(df)
+        frequencies = pd.DataFrame(df.value_counts())
+
 
     if level == 'scale':
         #scale with one item
         n = len(df)
-        mean = df.sum(axis=1).mean()
-        std = df.sum(axis=1).std()
+        mean = df.mean()
+        std = df.std()
         deskriptives = pd.DataFrame({'N':n,'Mean':round(mean,3),'Std':round(std,3)})
         frequencies = pd.DataFrame(df.value_counts())
+        frequencies.columns = ['n']
         return[deskriptives,frequencies]
 
     if level == "scales":
