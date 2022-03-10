@@ -44,7 +44,10 @@ def item_stats(df=None,level=None,drop=None,missings=None):
         #single nominal variable
         n = len(df)
         frequencies = pd.DataFrame(df.value_counts())
-
+        frequencies.columns = ['n']
+        s = frequencies['n'].sum()
+        frequencies['%'] = round((frequencies['n']/s)*100,3)
+        return frequencies
 
     if level == 'scale':
         #scale with one item
@@ -54,6 +57,8 @@ def item_stats(df=None,level=None,drop=None,missings=None):
         deskriptives = pd.DataFrame({'N':n,'Mean':round(mean,3),'Std':round(std,3)})
         frequencies = pd.DataFrame(df.value_counts())
         frequencies.columns = ['n']
+        s = frequencies['n'].sum()
+        frequencies['%'] = round((frequencies['n']/s)*100,3)
         return[deskriptives,frequencies]
 
     if level == "scales":
