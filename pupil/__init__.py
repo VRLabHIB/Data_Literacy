@@ -26,29 +26,53 @@ import scipy.ndimage as sn
 class Check():
     import numpy as np
 
-    def tracking_ratio(df=None, variable=None, missings=None, thresholds=None):
+    def tracking_ratio(df=None, variable=None, missings=None, thresholds=None, exclusive=False):
         """
         Computes the tracking ration for a time dependent signal as ratio of valid and invalid points
 
         Parameters
         ----------
         df::py:class: 'pandas.DataFrame'
-            time series i.e. df.loc[time, variable]
+            time series i.e. df.loc[time, variables]
 
+        variable: `str`
+            variable name in dataframe that should to be considered
+            
         missings: `numpy.ndarray`
             array of missing values which should be counted as invalid
 
         thresholds: `numpy.ndarray`
             lower and upper bound for signal i.e. [min , max]
 
+        exclusive: 'boolean'
+            If True: for multiple variables given all of them must be invalid
+            to count the count the timepoint as not tracked (and)
+            If False: (inclusive) invalid time point is detected if one of the 
+            value in one of the variables is invalid (more conservative approach)
+            
         Returns
         -------
         tracking_ratio: 'float'
             percentage of valid data points in the time series
-            
+        
+        ratio variable: 'numpy.ndarray'
+            time series with 0=invalid and 1=valid data point
         """
 
-        return None
+        df_sub = df[[variable]]
+        
+        df_sub['ratio']=[1]*len(df_sub)
+        
+        if thresholds!=None:
+            df_sub.loc[np.logical_or(df_sub[variable]<thresholds[0], df_sub[variable]>thresholds[1]),'ratio']=0
+
+        if missings!=None:
+            for mis in missings:
+                df_sub.loc[df_sub[variable]==mis,'ratio'] = 0
+         
+        ratio = df_sub['ratio'].sum()/len(df_sub)*100
+        
+        return ratio, df_sub['ratio']
 
 class Process():
        
