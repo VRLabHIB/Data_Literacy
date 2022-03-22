@@ -26,7 +26,7 @@ import scipy.ndimage as sn
 class Check():
     import numpy as np
 
-    def tracking_ratio(df=None, variable=None, missings=None, thresholds=None, exclusive=False):
+    def tracking_ratio(df=None, variable=None, missings=None, thresholds=None):
         """
         Computes the tracking ration for a time dependent signal as ratio of valid and invalid points
 
@@ -43,12 +43,6 @@ class Check():
 
         thresholds: `numpy.ndarray`
             lower and upper bound for signal i.e. [min , max]
-
-        exclusive: 'boolean'
-            If True: for multiple variables given all of them must be invalid
-            to count the count the timepoint as not tracked (and)
-            If False: (inclusive) invalid time point is detected if one of the 
-            value in one of the variables is invalid (more conservative approach)
             
         Returns
         -------
