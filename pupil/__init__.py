@@ -18,14 +18,31 @@ def help():
     print (file_contents)
     f.close()
 
-import matplotlib.pyplot as plt 
+
+
+import eyelinkparser
+#package from https://github.com/smathot/python-eyelinkparser
+from eyelinkparser import visualize
+import datamatrix
+from eyelinkparser import parse, defaulttraceprocessor
+from datamatrix import functional as fnc, series as srs, NAN
+from datamatrix import plot, operations as ops
+import matplotlib.patches as mpatches 
+from matplotlib import pyplot as plt
+from matplotlib import lines
+import matplotlib.lines as mlines
 import numpy as np
+from numpy import mean, absolute
+import pandas as pd
+import seaborn as sns
+import time_series_test as tst
 import scipy.signal as ss
 import scipy.ndimage as sn
 
-class Check():
-    import numpy as np
+np.random.seed(23032022)
 
+class Check():
+    
     def tracking_ratio(df=None, variable=None, missings=None, thresholds=None):
         """
         Computes the tracking ration for a time dependent signal as ratio of valid and invalid points
@@ -69,7 +86,95 @@ class Check():
         return ratio, df_sub['ratio']
 
 class Process():
-       
+    '''
+    The following functions are adaptions from
+    Mathôt, S., & Vilotijević, A. (in prep.) Methods in Cognitive Pupillometry: Design, Preprocessing, and Statistical Analysis
+    
+    The authors should be always mentioned when using this package.
+    '''
+    
+    
+    def  reconstruct_stream(df,variables=['pupilleft','pupilright'],plotting=True):
+        '''
+        Step 1: Interpolating or removing missing and invalid data
+        
+        Parameters
+        ----------
+        df : 'pandas.DataFrame'
+            time series i.e. df.loc[time, variables].
+        variables : list of strings, optional
+            Variable names of both pupil size variable of both eyes. 
+            The default is ['pupilleft','pupilright'].
+        plotting : boolean, optional
+            Plots both original and reconstructed pupil diameter. The default is True.
+
+        Returns
+        -------
+        `numpy.ndarray`
+            reconstructed pupil size of variables[0].
+        `numpy.ndarray`
+           reconstructed pupil size of variables[1].
+
+        '''
+        
+        df['pupilleft_r'] = srs.blinkreconstruct(df[variables[0]].values,mode='advanced')
+        df['pupilright_r'] = srs.blinkreconstruct(df[variables[1]].values,mode='advanced')
+        
+        if plotting:
+            fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True,
+                        sharex=True, sharey=True)
+            x = df['time']
+            fig.supxlabel("Time (sec)", fontsize=14)
+            fig.supylabel("Pupil size (a.u.)", fontsize=14)
+            plt.subplot(121)
+            plt.title(r"$\bf{" "a) " "}$" " Left Pupil Size",
+                      fontsize=14, loc="left")
+            plt.plot(x,df[variables[0]], color="deepskyblue",
+                     label="original", linestyle="solid")
+            plt.plot(x,df['pupilleft_r'], color="blue",
+                     label="reconstructed", linestyle="dashed")
+            plt.subplot(122)
+            plt.title(r"$\bf{" "a) " "}$" " Right Pupil Size",
+                      fontsize=14, loc="left")
+            plt.plot(x,df[variables[1]], color="deepskyblue",
+                     label="original", linestyle="solid")
+            plt.plot(x,df['pupilright_r'], color="blue",
+                     label="reconstructed", linestyle="dashed")
+            
+            
+            plt.xlim(0, df['time'].iloc[-1])
+            plt.ylim(-2,9)
+            plt.legend(loc="lower right")
+            plt.show()
+            
+        return df['pupilleft_r'].values,df['pupilright_r'].values
+    
+    def get_baseline(df,variables=['pupilleft','pupilright']):
+        '''
+        Step 2: Get baseline mean value
+        
+        Parameters
+        ----------
+        df : 'pandas.DataFrame'
+            time series i.e. df.loc[time, variables] from which the baseline should
+            be taken.
+        
+        variables : list of strings, optional
+            Variable names of both pupil size variable of both eyes. 
+            The default is ['pupilleft','pupilright'].
+        Returns
+        -------
+        'float'
+            mean baseline value of variables[0]
+        'float'
+            mean baseline value of variables[1]
+        '''
+        
+        baseline_left = np.nanmean(df[variables[0]])
+        baseline_right = np.nanmean(df[variables[1]])
+                
+        return baseline_left, baseline_right
+        
     def dilation_speed(df, VAR):
         """
         For each value in the dataframe, takes the maximum of the dilation speed 
