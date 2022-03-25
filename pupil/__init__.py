@@ -117,8 +117,8 @@ class Process():
 
         '''
         
-        df['pupilleft_r'] = srs.blinkreconstruct(df[variables[0]].values,mode='advanced')
-        df['pupilright_r'] = srs.blinkreconstruct(df[variables[1]].values,mode='advanced')
+        df['pupilleft_r']  = srs.blinkreconstruct(df[variables[0]].values, vt_start=5, gap_margin=5, mode='advanced')
+        df['pupilright_r'] = srs.blinkreconstruct(df[variables[1]].values, vt_start=5, gap_margin=5, mode='advanced')
         
         if plotting:
             fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True,
@@ -142,7 +142,7 @@ class Process():
                      label="reconstructed", linestyle="dashed")
             
             
-            plt.xlim(0, df['time'].iloc[-1])
+            plt.xlim(df['time'].iloc[0], df['time'].iloc[-1])
             plt.ylim(-2,9)
             plt.legend(loc="lower right")
             plt.show()
