@@ -149,7 +149,7 @@ class Process():
             
         return df['pupilleft_r'].values,df['pupilright_r'].values
     
-    def get_baseline(df,variables=['pupilleft','pupilright']):
+    def get_baseline(df,rel_time_interval,time_var_name = 'time',variables=['pupilleft','pupilright']):
         '''
         Step 2: Get baseline mean value
         
@@ -158,7 +158,12 @@ class Process():
         df : 'pandas.DataFrame'
             time series i.e. df.loc[time, variables] from which the baseline should
             be taken.
-        
+        rel_time_interval : 'list of floats'
+            list contains relative start and end time of the interval to be used as basline
+            
+        time_var_name : 'string'
+            name of the variable in df that contains the time 
+            
         variables : list of strings, optional
             Variable names of both pupil size variable of both eyes. 
             The default is ['pupilleft','pupilright'].
@@ -169,9 +174,13 @@ class Process():
         'float'
             mean baseline value of variables[1]
         '''
+        print('yes')
+        df[time_var_name] = df[time_var_name]-df[time_var_name].iloc[0]
         
-        baseline_left = np.nanmean(df[variables[0]])
-        baseline_right = np.nanmean(df[variables[1]])
+        df_sub = df[np.logical_and(df[time_var_name]>=rel_time_interval[0],df[time_var_name]<rel_time_interval[1])]
+        
+        baseline_left = np.nanmean(df_sub[variables[0]])
+        baseline_right = np.nanmean(df_sub[variables[1]])
                 
         return baseline_left, baseline_right
         
