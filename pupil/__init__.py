@@ -75,9 +75,12 @@ class Check():
         df_sub['ratio']=[1]*len(df_sub)
         
         if thresholds!=None:
-            df_sub.loc[np.logical_or(df_sub[variable]<thresholds[0], df_sub[variable]>thresholds[1]),'ratio']=0
+            df_sub.loc[np.logical_or(df_sub[variable]<=thresholds[0], df_sub[variable]>=thresholds[1]),'ratio']=0
 
-        if missings!=None:
+        #mark all np.nan values
+        df_sub.loc[np.isnan(df_sub[variable]),'ratio'] = 0
+        
+        if missings!=None:              
             for mis in missings:
                 df_sub.loc[df_sub[variable]==mis,'ratio'] = 0
          
@@ -322,6 +325,8 @@ def smooth_and_filter(x,window_len=11,window='hanning',poly_order=3):
     
 
 class Display():
+    
+    
     
     def plot_pupil(df1, df2):
         """
