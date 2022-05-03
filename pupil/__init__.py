@@ -97,7 +97,7 @@ class Process():
     '''
     
     
-    def  reconstruct_stream(df,variables=['pupilleft','pupilright'],plotting=True):
+    def  reconstruct_stream(df,variables=['pupilleft','pupilright'],vt_start = 5,gap_margi = 5,plotting=True):
         '''
         Step 1: Interpolating or removing missing and invalid data
         
@@ -120,8 +120,8 @@ class Process():
 
         '''
         
-        df['pupilleft_r']  = srs.blinkreconstruct(df[variables[0]].values, vt_start=5, gap_margin=5, mode='advanced')
-        df['pupilright_r'] = srs.blinkreconstruct(df[variables[1]].values, vt_start=5, gap_margin=5, mode='advanced')
+        df['pupilleft_r']  = srs.blinkreconstruct(df[variables[0]].values, vt_start=vt_start, gap_margin=gap_margin, mode='advanced')
+        df['pupilright_r'] = srs.blinkreconstruct(df[variables[1]].values, vt_start=vt_start, gap_margin=gap_margin, mode='advanced')
         
         if plotting:
             fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True,
