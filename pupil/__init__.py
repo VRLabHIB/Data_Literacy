@@ -97,7 +97,7 @@ class Process():
     '''
     
     
-    def  reconstruct_stream(df,variables=['pupilleft','pupilright'],vt_start = 5,gap_margi = 5,plotting=True):
+    def  reconstruct_stream(df,variables=['pupilleft','pupilright'],vt_start = 5,gap_margin = 5,plotting=True):
         '''
         Step 1: Interpolating or removing missing and invalid data
         
