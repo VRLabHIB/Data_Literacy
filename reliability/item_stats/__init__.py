@@ -91,3 +91,22 @@ def item_stats(df=None,level=None,drop=None,missings=None):
         stats = stats.round(3)
 
     return [df_alpha, stats]
+
+def test_normality(df, var):
+    from statsmodels.graphics.gofplots import qqplot
+    from scipy.stats import shapiro
+
+    qqplot(df[var], line='s')
+    plt.show()
+
+    stat, p = shapiro(df[var])
+    print('Statistics=%.3f, p=%.3f' % (stat, p))
+    # interpret results
+    alpha = 0.05
+    if p > alpha:
+        print('Sample looks Gaussian (fail to reject H0)')
+    else:
+        print('Sample does not look Gaussian (reject H0)')
+
+def plot_distribution(df, var):
+    pass
