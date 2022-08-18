@@ -30,6 +30,7 @@ from datamatrix import plot, operations as ops
 import matplotlib.patches as mpatches 
 from matplotlib import pyplot as plt
 from matplotlib import lines
+import matplotlib.font_manager
 import matplotlib.lines as mlines
 import numpy as np
 from numpy import mean, absolute
@@ -95,9 +96,9 @@ class Process():
     
     The authors should be always mentioned when using this package.
     '''
-    
-    
-    def  reconstruct_stream(df,variables=['pupilleft', 'pupilright'],vt_start = 5,gap_margin = 5,plotting=True):
+
+            
+    def  reconstruct_stream(df,variables=['pupilleft', 'pupilright'],vt_start = 5,gap_margin = 5,plotting=True, save_plot=False, save_dir=''):
         '''
         Step 1: Interpolating or removing missing and invalid data
         
@@ -122,15 +123,15 @@ class Process():
         
         df['pupilleft_r']  = srs.blinkreconstruct(df[variables[0]].values, vt_start=vt_start, gap_margin=gap_margin, mode='advanced')
         df['pupilright_r'] = srs.blinkreconstruct(df[variables[1]].values, vt_start=vt_start, gap_margin=gap_margin, mode='advanced')
+
         
-        ID = df['ID'].iloc[i]
-        
-        if plotting:
+        if np.logical_or(plotting, save_plot):
             fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True,
                         sharex=True, sharey=True)
             x = df['time']
             fig.supxlabel("Time (sec)", fontsize=14)
             fig.supylabel("Pupil size (a.u.)", fontsize=14)
+            fig.suptitle('ID {}, Dimension: {}D.png'.format(df['ID'].iloc[0], df['dimension'].iloc[0]))
             plt.subplot(121)
             plt.title(r"$\bf{" "a) " "}$" " Left Pupil Size",
                       fontsize=14, loc="left")
@@ -150,10 +151,27 @@ class Process():
             plt.xlim(df['time'].iloc[0], df['time'].iloc[-1])
             plt.ylim(-2,9)
             plt.legend(loc="lower right")
+
+            if save_plot:
+                from datetime import date
+                today = date.today()
+                print(today)
+                dirName = save_dir+str(today)+'/'
+
+                try:
+                    # Create target Directory
+                    os.mkdir(dirName)
+                    print("Directory created")
+                except FileExistsError:
+                    None
+                    # print("Directory already exists")
+
+                plt.savefig(dirName + 'ID{}_{}D.png'.format(df['ID'].iloc[0], df['dimension'].iloc[0]),
+                            dpi=100)
+            if plotting==False:
+                plt.close(fig)
             plt.show()
 
-
-            
         return df['pupilleft_r'].values,df['pupilright_r'].values
     
     def get_baseline(df,rel_time_interval,time_var_name = 'time',variables=['pupilleft','pupilright']):
