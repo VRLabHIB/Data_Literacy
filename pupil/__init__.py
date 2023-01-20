@@ -120,7 +120,7 @@ class Process():
            reconstructed pupil size of variables[1].
 
         '''
-        
+        # https://datamatrix.cogsci.nl/0.14/series/#function-blinkreconstructseries-vt5-vt_start10-vt_end5-maxdur500-margin10-smooth_winlen21-std_thr3-gap_margin20-gap_vt10-modeuoriginal
         df['pupilleft_r']  = srs.blinkreconstruct(df[variables[0]].values, vt_start=vt_start, gap_margin=gap_margin, mode='advanced')
         df['pupilright_r'] = srs.blinkreconstruct(df[variables[1]].values, vt_start=vt_start, gap_margin=gap_margin, mode='advanced')
 
