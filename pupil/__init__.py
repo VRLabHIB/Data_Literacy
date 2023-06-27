@@ -347,9 +347,7 @@ def smooth_and_filter(x,window_len=11,window='hanning',poly_order=3):
     
 
 class Display():
-    
-    
-    
+
     def plot_pupil(df1, df2):
         """
         Parameters
